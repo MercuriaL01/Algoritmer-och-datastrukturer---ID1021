@@ -1,0 +1,125 @@
+import java.io.FileReader;
+import java.util.*;
+
+public class FrequencyCounter_question4
+{
+    private FrequencyCounter_question4()
+    {
+
+	}
+
+    public static void main(String[] args) throws Exception    //Has to throw exception for "FileNotFoundException"
+    {
+		System.out.print("loading");
+        SeparateChainingHashST_question4<String, Integer> separateChainingHash = new SeparateChainingHashST_question4<String, Integer>();
+        FileReader file = new FileReader("leipzig1m.txt");
+		Scanner fileScan = new Scanner(file);
+		int countUp = 0;
+        while(fileScan.hasNextLine()) // compute frequency counts
+        {
+			String line = fileScan.nextLine();
+			String newLine = "";
+			char[] chars = new char[line.length()];
+			for(int i = 0; i < line.length(); i++)   //For each character in line remove the ones that aren't letters and replace them with ' '
+			{
+				chars[i] = line.charAt(i);
+				if(!Character.isLetter(chars[i]) && chars[i] != '\'')		//We only wants letters not other chars
+				{
+					chars[i] = ' ';						//Replace non letters into blanks
+ 				}
+				newLine += chars[i];
+			}
+			String[] allWords = newLine.split("\\s+"); // Will split the string into a string array with one or multiple spaces as the separator between words that are put into the array
+			for(String s : allWords)
+			{
+				if(s.trim().length() <= 0) //Check if length == 0 when trimming the string (removing the whitespaces) if so don't use this string.
+				{
+					continue;
+				}
+        	    String key = s.toLowerCase();
+        	    if(separateChainingHash.contains(key))				//If we have already seen this word
+        	    {
+        	        separateChainingHash.put(key, separateChainingHash.get(key) + 1);			//Set +1 to the value since we have seen the word one more time
+        	    }
+        	    else
+        	    {
+        	        separateChainingHash.put(key, 1);
+        	    }
+			}
+			if(countUp++ % 10000 == 0)
+			{
+				System.out.print(".");
+			}
+        }
+
+        BinarySearchST_question4<Integer, List<String>> binaryST = new BinarySearchST_question4<Integer, List<String>>();		//Create new BinarySearchST
+        for(String word : separateChainingHash.keys())						//Go through each word in the separateChainingHash symbol table
+		{
+			int wordCount = separateChainingHash.get(word);
+			if(binaryST.contains(wordCount))		//If a word with the same wordcount is already in the BinarySearchST
+			{
+				List<String> currentWords = binaryST.get(wordCount);
+				currentWords.add(word);									//Add the newly found word with the same word count to the list
+				binaryST.put(wordCount, currentWords);					//Update the word List with that word count in the BinarySearchST
+			}
+			else
+			{
+				List<String> newWord = new ArrayList<String>();
+				newWord.add(word);
+				binaryST.put(wordCount, newWord);			//Update the word List with that word count in the BinarySearchST
+			}
+		}
+		System.out.println();
+        Scanner scan = new Scanner(System.in);
+        int input = 0;
+        int k = 0;
+        String[] splitWords = new String[2];
+        while(true)
+        {
+			System.out.println("Enter 1 to know which is the k:th most common word, k is between 1 and " + binaryST.size());
+			System.out.println("Enter any other number to know which are the k:th to the k + n:th most common words, k is between 1 and " + binaryST.size());
+			System.out.print("Input: ");
+			input = scan.nextInt();				//Scan the choice the user made for what to do, either 1 or some other number
+			System.out.println();
+			System.out.print("Enter k: ");
+			k = scan.nextInt();					//scan the k that the user input
+			System.out.println();
+			if(input == 1)			//If the input is 1 then the person wanted to know "which is the k:th most common word, k is between 1 and " + binaryST.size()"
+			{
+				System.out.print("The " + k + ":th most common word(s) are: ");
+				Integer tempKey = binaryST.getKey(binaryST.size() - k);
+				int x = 0;
+				for(String s : binaryST.get(tempKey))
+				{
+					System.out.print(s);
+					if(++x != 1)
+					{
+						 System.out.print(", ");
+					}
+				}
+				System.out.println();
+			}
+			else		//If the input is another number than 1 then the person wanted to know which are the k:th to the k + n:th most common words, k is between 1 and " + allWords.length
+			{
+				System.out.print("Enter n: ");
+				int n = scan.nextInt();					//scan the k that the user input
+				int x = 0;
+				for(int j = k; j <= k + n; j++)			//Go from word k to the k + nth most common word
+				{
+					System.out.print(j + ":th most common word(s) are: ");
+					Integer tempKey = binaryST.getKey(binaryST.size() - j);
+					for(String s : binaryST.get(tempKey))
+					{
+						System.out.print(s);
+						if(++x != 1)
+						{
+							System.out.print(", ");
+						}
+					}
+					System.out.println();
+				}
+			}
+			System.out.println();
+		}
+    }
+}

@@ -1,0 +1,71 @@
+import java.util.Scanner;
+
+public class question_1
+{
+	public static void main(String[] args)
+	{
+		CircularDoubleLinkedList_question1<Integer> list = new CircularDoubleLinkedList_question1<Integer>();			//Create a new linked list
+		while(true)	//Run the program forever
+		{
+			test(list);
+		}
+	}
+
+	public static void test(CircularDoubleLinkedList_question1 inputList)
+	{
+		Scanner scan = new Scanner(System.in);
+		System.out.println("Enter 1 to add an element to your queue");
+		System.out.println("Enter 2 to remove an element from your queue");
+		System.out.println("Enter 3 to view your queue");
+		int input = scan.nextInt();							//Input is set to the choice the user takes
+		scan.nextLine();				//This is here to catch the enter input at the end (scan.nextInt() doesn't take care of it)
+		switch(input)			//Switch with input as parameter
+		{
+			case 1:
+			System.out.println("Write what you want to add to the queue");
+			String userInput = scan.nextLine();			//userInput is set to the thing the user wants to add to the queue
+			System.out.println("To add it to the start enter 1, to add it to the end enter 2, to add it in the correct place in an ascending list enter any other number");
+			int secondUserInput = scan.nextInt();
+			if(secondUserInput == 1)				//If adding to the start push the userInput
+			{
+				inputList.push(userInput);
+			}
+			else if(secondUserInput == 2)  //If adding to the end enqueue the user input
+			{
+				inputList.enqueue(userInput);
+			}
+			else	//Here we user the insertAscending method to add the userInput in ascending order into the list
+			{
+				inputList.insertAscending(userInput);
+			}
+			 break;
+			case 2:
+			System.out.println("To remove at the start enter 1, to remove at the end enter any other number");
+			int thirdUserInput = scan.nextInt();
+			Object removedItem = 0;
+			if(thirdUserInput == 1)		//If the user wants to remove at the start dequeue an item and also print out the removedItem
+			{
+				removedItem = inputList.dequeue();
+				System.out.println("Removed item: " + removedItem);
+			}
+			else		//If the user wants to remove at the end then we reverseDequeue an items and also print out the removed item
+			{
+				removedItem = inputList.reverseDequeue();
+				System.out.println("Removed item: " + removedItem);
+			}
+			 break;
+			case 3:
+			System.out.print("[");		//Begin the queue with a "["
+			for(Object i : inputList)		//Go through each objects in the list
+			{
+				System.out.print("(" + i + ")");		//Print out each object with curly brackets to the left and right of the item
+			}
+			System.out.print("]");		//End the queue with a "]"
+			 break;
+			default:
+			System.out.println("That wasns't a number between 1-3!");		//If this happens the input parameter to the switch was not between 1 and 3 so we print that
+			 break;
+		}
+		System.out.println();
+	}
+}

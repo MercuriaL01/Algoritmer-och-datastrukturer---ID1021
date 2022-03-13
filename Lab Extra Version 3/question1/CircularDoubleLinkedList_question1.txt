@@ -1,0 +1,109 @@
+import java.util.NoSuchElementException;
+import java.util.Iterator;
+
+public class CircularDoubleLinkedList_question1<Item extends Comparable<Item>> implements Iterable<Item> {
+	private int n;	 	//number of elements in the list
+	private Node sentinel;	//Sentinel element that is always before the first item
+
+	public CircularDoubleLinkedList_question1() {
+		sentinel = new Node();	//Set pre to an empty node
+	}
+
+	private class Node {
+		private Item item;
+		private Node next, prev;
+
+		public Node() {	}
+
+		public Node(Item item, Node prev, Node next) {
+			this.item = item;
+			this.prev = prev;
+			this.next = next;
+			prev.next = this;
+			next.prev = this;
+		}
+	}
+
+	public void enqueue(Item item) {  //Add item to the end of the list
+		if(sentinel.prev == null) { Node newNode = new Node(item, sentinel, sentinel); }	//If no nodes then we can simply create a new node with parameter item as item, sentinel as the previous node and sentinel as the next node
+		else { Node newNode = new Node(item, sentinel.prev, sentinel); }		//Create a new node with parameter item as item, sentinel.prev as the previous node and sentinel as the next node
+	}
+
+	public void push(Item item) {	//Add item to the start of the list
+		if(sentinel.next == null) { Node newNode = new Node(item, sentinel, sentinel); }	//If no nodes then we can simply create a new node with parameter item as item, sentinel as the previous node and sentinel as the next node
+		else { Node newNode = new Node(item, sentinel, sentinel.next); }		//Create a new node with parameter item as item, sentinel as the previous and sentinel.next as the next
+	}
+
+	public Item dequeue() { //Remove the first element of the list and returns it's item
+		Node temp = sentinel.next;
+		if(temp == null) { throw new IllegalArgumentException("Empty list nothing to remove"); }	//Empty list so throw an exception
+		if(temp.next != sentinel) { sentinel.next = temp.next; temp.next.prev = sentinel; }
+		else { sentinel.next = sentinel.prev = null; }
+		temp.next = temp.prev = null;		//remove the old node's pointers
+		return temp.item;			//Return the old first node's item
+	}
+
+	public Item reverseDequeue() { //Remove the last element of the list and returns it's item
+		Node temp = sentinel.prev;
+		if(temp == null) { throw new IllegalArgumentException("Empty list nothing to remove"); }		//Nothing to remove so we throw an exception saying this
+		temp.prev.next = sentinel;		//set the next pointer of the second last element to sentinel since the last element is removed
+		temp.next = temp.prev = null;		//remove the old node's pointers
+		return temp.item;		//Return the item of the item that was removed
+	}
+
+	public void insertAscending(Item item) {	//Add an element into a ordered list in ascending order (put the element in the correct place if the list is already ordered in ascending ordered)
+		Node temp = sentinel;
+		if(temp.next == null) {			//If an empty list simply add a node to the list which can be done by enqueuing it since order isn't a thing in a list with 1 element
+			enqueue(item);
+			return;
+		}
+		while(temp.next != sentinel && item.compareTo(temp.next.item) > 0) {	//While there are more nodes and the parameter item is bigger then the item we are looking at
+			temp = temp.next;		//Go forward in the list until we reach what the while loop is looking for
+		}
+		if(temp.next == sentinel) { enqueue(item); }		//We simply add the item to the end of the list since if temp.next == sentinelz we reached the end without finding a smaller item than the parameter
+		else { Node newNode = new Node(item, temp, temp.next); }		//Create a new node with parameter item as the item, temp as the previous node and temp.next as the next node
+	}
+
+	public Iterator<Item> iterator()			//Here we create an iterator which we can use to use for-loops
+	{
+		return new LinkedIterator(sentinel);	//call LinkedIterator using the sentinel element
+    }
+
+	private class LinkedIterator implements Iterator<Item> {
+
+    	private Node current;			//The current node we are at
+
+       	public LinkedIterator(Node sentinel) {
+       	    current = sentinel.next;		//Current starts at sentinel.next since this will be the first element in the list
+        	}
+
+        public boolean hasNext() {		//Check if current is null or not
+			return current != sentinel;
+		}
+        public void remove() {			//We dont need this method so we simply throw an exception if it is used
+			throw new UnsupportedOperationException();
+		}
+
+       	public Item next() {		//Return the current item and go forward in the list
+       	    if (!hasNext())	{	//If no next then we throw an exception since there are no more next items to return
+				throw new NoSuchElementException();
+			}
+       	    Item item = current.item;
+       	    current = current.next;				//Go forward in the list
+       	    return item;		//Return the item of the item we got 2 rows up
+		}
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
